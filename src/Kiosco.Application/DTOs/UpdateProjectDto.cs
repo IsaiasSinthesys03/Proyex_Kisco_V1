@@ -13,6 +13,7 @@ public class UpdateProjectDto
     public string? Category { get; set; }
     public List<string>? TeamMembers { get; set; }
     public string? CoverImageUrl { get; set; }
+    public string? IconUrl { get; set; }
     public string? VideoUrl { get; set; }
     public List<string>? GalleryUrls { get; set; }
     public List<DocumentDto>? Documents { get; set; }

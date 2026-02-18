@@ -41,6 +41,7 @@ public class ProjectService : IProjectService
             Category = p.Category,
             TeamMembers = p.TeamMembers,
             CoverImageUrl = p.CoverImageUrl,
+            IconUrl = p.IconUrl,
             VideoUrl = p.VideoUrl,
             GalleryUrls = p.GalleryUrls,
             Documents = p.Documents.Select(d => new DocumentDto { Title = d.Title, Url = d.Url, Type = d.Type }).ToList(),
@@ -86,6 +87,7 @@ public class ProjectService : IProjectService
             Category = project.Category,
             TeamMembers = project.TeamMembers,
             CoverImageUrl = project.CoverImageUrl,
+            IconUrl = project.IconUrl,
             VideoUrl = project.VideoUrl,
             GalleryUrls = project.GalleryUrls,
             Documents = project.Documents.Select(d => new DocumentDto { Title = d.Title, Url = d.Url, Type = d.Type }).ToList(),
@@ -112,6 +114,7 @@ public class ProjectService : IProjectService
             Category = createDto.Category,
             TeamMembers = createDto.TeamMembers,
             CoverImageUrl = createDto.CoverImageUrl,
+            IconUrl = createDto.IconUrl,
             VideoUrl = createDto.VideoUrl,
             GalleryUrls = createDto.GalleryUrls,
             Documents = createDto.Documents.Select(d => new ProjectDocument { Title = d.Title, Url = d.Url, Type = d.Type }).ToList(),
@@ -133,6 +136,7 @@ public class ProjectService : IProjectService
             Category = project.Category,
             TeamMembers = project.TeamMembers,
             CoverImageUrl = project.CoverImageUrl,
+            IconUrl = project.IconUrl,
             VideoUrl = project.VideoUrl,
             GalleryUrls = project.GalleryUrls,
             Documents = project.Documents.Select(d => new DocumentDto { Title = d.Title, Url = d.Url, Type = d.Type }).ToList(),
@@ -154,6 +158,7 @@ public class ProjectService : IProjectService
         if (updateDto.Category != null) project.Category = updateDto.Category;
         if (updateDto.TeamMembers != null) project.TeamMembers = updateDto.TeamMembers;
         if (updateDto.CoverImageUrl != null) project.CoverImageUrl = updateDto.CoverImageUrl;
+        if (updateDto.IconUrl != null) project.IconUrl = updateDto.IconUrl;
         if (updateDto.VideoUrl != null) project.VideoUrl = updateDto.VideoUrl;
         if (updateDto.GalleryUrls != null) project.GalleryUrls = updateDto.GalleryUrls;
         if (updateDto.Documents != null)

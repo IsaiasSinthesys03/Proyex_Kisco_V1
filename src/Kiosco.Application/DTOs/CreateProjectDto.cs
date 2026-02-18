@@ -18,7 +18,7 @@ public class CreateProjectDto
     public List<string> TeamMembers { get; set; } = new();
 
     public string? CoverImageUrl { get; set; }
-
+    public string? IconUrl { get; set; }
     public string? VideoUrl { get; set; }
     public List<string> GalleryUrls { get; set; } = new();
     public List<DocumentDto> Documents { get; set; } = new();

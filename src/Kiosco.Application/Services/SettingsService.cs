@@ -23,13 +23,24 @@ public class SettingsService : ISettingsService
 
     public async Task UpdateSettingsAsync(GlobalSettings settings)
     {
-        var existing = await GetSettingsAsync();
+        var settingsList = await _repository.GetAllAsync();
         
-        if (existing != null)
+        if (settingsList.Any())
         {
-            // Mantenemos el mismo ID del documento existente
+            // Limpieza: Si por algún motivo hay más de uno, dejamos solo el primero
+            var existing = settingsList.First();
             settings.Id = existing.Id;
             await _repository.UpdateAsync(existing.Id, settings);
+            
+            // Eliminar duplicados si existen (Resiliencia)
+            if (settingsList.Count() > 1)
+            {
+                foreach (var s in settingsList.Skip(1))
+                {
+                    if (s.Id != null) await _repository.DeleteAsync(s.Id);
+                }
+            }
+
             await _auditService.LogActionAsync("Actualizar Ajustes", "Settings", settings.Id, "Configuración global actualizada.");
         }
         else

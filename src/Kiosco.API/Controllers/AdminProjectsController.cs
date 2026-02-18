@@ -33,15 +33,17 @@ public class AdminProjectsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<ProjectDto>> Create(CreateProjectDto createDto)
+    public async Task<ActionResult<ProjectDto>> Create([FromBody] CreateProjectDto createDto)
     {
+        Console.WriteLine($"🛠️ DEBUG CREATE: Title={createDto.Title}, IconUrl={createDto.IconUrl}");
         var createdProject = await _projectService.CreateProjectAsync(createDto);
         return CreatedAtAction(nameof(GetById), new { id = createdProject.Id }, createdProject);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, UpdateProjectDto updateDto)
+    public async Task<IActionResult> Update(string id, [FromBody] UpdateProjectDto updateDto)
     {
+        Console.WriteLine($"🛠️ DEBUG UPDATE: Id={id}, IconUrl={updateDto.IconUrl}");
         await _projectService.UpdateProjectAsync(id, updateDto);
         return NoContent();
     }
