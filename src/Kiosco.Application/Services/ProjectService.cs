@@ -44,6 +44,8 @@ public class ProjectService : IProjectService
             VideoUrl = p.VideoUrl,
             GalleryUrls = p.GalleryUrls,
             Documents = p.Documents.Select(d => new DocumentDto { Title = d.Title, Url = d.Url, Type = d.Type }).ToList(),
+            Objectives = p.Objectives,
+            TechStack = p.TechStack,
             Status = p.Status,
             VoteCount = p.Stats.VoteCount
         });
@@ -87,6 +89,8 @@ public class ProjectService : IProjectService
             VideoUrl = project.VideoUrl,
             GalleryUrls = project.GalleryUrls,
             Documents = project.Documents.Select(d => new DocumentDto { Title = d.Title, Url = d.Url, Type = d.Type }).ToList(),
+            Objectives = project.Objectives,
+            TechStack = project.TechStack,
             Status = project.Status,
             VoteCount = project.Stats.VoteCount
         };
@@ -111,6 +115,8 @@ public class ProjectService : IProjectService
             VideoUrl = createDto.VideoUrl,
             GalleryUrls = createDto.GalleryUrls,
             Documents = createDto.Documents.Select(d => new ProjectDocument { Title = d.Title, Url = d.Url, Type = d.Type }).ToList(),
+            Objectives = createDto.Objectives,
+            TechStack = createDto.TechStack,
             Status = "Active",
             CreatedAt = DateTime.UtcNow
         };
@@ -130,7 +136,10 @@ public class ProjectService : IProjectService
             VideoUrl = project.VideoUrl,
             GalleryUrls = project.GalleryUrls,
             Documents = project.Documents.Select(d => new DocumentDto { Title = d.Title, Url = d.Url, Type = d.Type }).ToList(),
-            Status = project.Status
+            Objectives = project.Objectives,
+            TechStack = project.TechStack,
+            Status = project.Status,
+            VoteCount = 0
         };
     }
 
@@ -156,6 +165,8 @@ public class ProjectService : IProjectService
                 Type = d.Type
             }).ToList();
         }
+        if (updateDto.Objectives != null) project.Objectives = updateDto.Objectives;
+        if (updateDto.TechStack != null) project.TechStack = updateDto.TechStack;
         if (updateDto.Status != null) project.Status = updateDto.Status;
 
         project.UpdatedAt = DateTime.UtcNow;

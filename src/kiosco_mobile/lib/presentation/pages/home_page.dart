@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../core/constants.dart';
-import '../data/datasources/api_service.dart';
-import '../data/models/project_model.dart';
-import '../widgets/project_card.dart';
+import 'package:kiosco_mobile/core/constants.dart';
+import 'package:kiosco_mobile/data/datasources/api_service.dart';
+import 'package:kiosco_mobile/data/models/project_model.dart';
+import 'package:kiosco_mobile/presentation/widgets/project_card.dart';
+import 'qr_scanner_page.dart';
+import '../../main.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,14 +18,26 @@ class _HomePageState extends State<HomePage> {
   final ApiService _apiService = ApiService(baseUrl: AppConstants.baseUrl);
   late Future<List<ProjectModel>> _projectsFuture;
   String _selectedCategory = 'Todos';
-  bool _isDarkMode = false; // Simulado para el toggle local
-
-  final List<String> _categories = ['Todos', 'Software', 'Gaming', 'Deporte', 'Ambiente', 'Salud'];
+  List<String> _dynamicCategories = ['Todos'];
 
   @override
   void initState() {
     super.initState();
-    _projectsFuture = _apiService.getProjects();
+    _loadProjects();
+  }
+
+  void _loadProjects() {
+    setState(() {
+      _projectsFuture = _apiService.getProjects().then((projects) {
+        // Extraer categorías únicas de los proyectos
+        final categories = projects.map((p) => p.category).toSet().toList();
+        categories.sort();
+        setState(() {
+          _dynamicCategories = ['Todos', ...categories];
+        });
+        return projects;
+      });
+    });
   }
 
   @override
@@ -32,13 +46,11 @@ class _HomePageState extends State<HomePage> {
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
-            setState(() {
-              _projectsFuture = _apiService.getProjects();
-            });
+            _loadProjects();
           },
           child: CustomScrollView(
             slivers: [
-              // Search Bar Area
+              // ... (Barra de búsqueda omitida por brevedad, se mantiene igual)
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
@@ -69,15 +81,39 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 ),
                               ),
-                              Icon(Icons.qr_code_scanner, color: Theme.of(context).colorScheme.primary),
+                              IconButton(
+                                icon: Icon(Icons.qr_code_scanner, color: Theme.of(context).colorScheme.primary),
+                                onPressed: () {
+                                    Navigator.push(
+                                        context, 
+                                        MaterialPageRoute(builder: (context) => const QRScannerPage())
+                                    );
+                                },
+                              ),
                             ],
                           ),
                         ),
                       ),
                       const SizedBox(width: 12),
                       IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.dark_mode_outlined),
+                        onPressed: () {
+                          // Ciclo: system -> light -> dark -> system
+                          final current = ProyexApp.themeNotifier.value;
+                          if (current == ThemeMode.system) {
+                            ProyexApp.themeNotifier.value = ThemeMode.light;
+                          } else if (current == ThemeMode.light) {
+                            ProyexApp.themeNotifier.value = ThemeMode.dark;
+                          } else {
+                            ProyexApp.themeNotifier.value = ThemeMode.system;
+                          }
+                        },
+                        icon: Icon(
+                          ProyexApp.themeNotifier.value == ThemeMode.dark 
+                              ? Icons.light_mode 
+                              : ProyexApp.themeNotifier.value == ThemeMode.light 
+                                  ? Icons.dark_mode 
+                                  : Icons.brightness_auto,
+                        ),
                         style: IconButton.styleFrom(
                           backgroundColor: Theme.of(context).colorScheme.surface,
                           side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
@@ -88,22 +124,22 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
 
-              // Categories Chips
+              // Categories Chips Dinámicos
               SliverToBoxAdapter(
                 child: SizedBox(
                   height: 40,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.only(left: 20),
-                    itemCount: _categories.length,
+                    itemCount: _dynamicCategories.length,
                     itemBuilder: (context, index) {
-                      bool selected = _selectedCategory == _categories[index];
+                      bool selected = _selectedCategory == _dynamicCategories[index];
                       return Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: ChoiceChip(
-                          label: Text(_categories[index]),
+                          label: Text(_dynamicCategories[index]),
                           selected: selected,
-                          onSelected: (val) => setState(() => _selectedCategory = _categories[index]),
+                          onSelected: (val) => setState(() => _selectedCategory = _dynamicCategories[index]),
                           selectedColor: Theme.of(context).colorScheme.primary,
                           labelStyle: TextStyle(
                             color: selected ? Colors.white : Theme.of(context).colorScheme.onSurface,
@@ -125,18 +161,32 @@ class _HomePageState extends State<HomePage> {
                   future: _projectsFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const SliverToBoxAdapter(child: Center(child: CircularProgressIndicator()));
+                      return const SliverToBoxAdapter(child: Center(child: Padding(
+                        padding: EdgeInsets.only(top: 100),
+                        child: CircularProgressIndicator(),
+                      )));
                     } else if (snapshot.hasError) {
                       return SliverToBoxAdapter(
-                        child: Center(child: Text('Error al conectar con el API')),
+                        child: Center(child: Column(
+                          children: [
+                            const Icon(Icons.wifi_off_rounded, size: 60, color: Colors.grey),
+                            const SizedBox(height: 16),
+                            Text('Error de conexión: ${snapshot.error.toString().contains('Failed host') ? 'No se pudo llegar al servidor' : snapshot.error}'),
+                            TextButton(onPressed: _loadProjects, child: const Text('Reintentar'))
+                          ],
+                        )),
                       );
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const SliverToBoxAdapter(child: Center(child: Text('No hay proyectos')));
+                      return const SliverToBoxAdapter(child: Center(child: Text('No hay proyectos disponibles')));
                     }
 
                     final projects = _selectedCategory == 'Todos' 
                         ? snapshot.data! 
                         : snapshot.data!.where((p) => p.category == _selectedCategory).toList();
+
+                    if (projects.isEmpty) {
+                       return const SliverToBoxAdapter(child: Center(child: Text('No hay proyectos en esta categoría')));
+                    }
 
                     return SliverGrid(
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

@@ -16,5 +16,7 @@ public class UpdateProjectDto
     public string? VideoUrl { get; set; }
     public List<string>? GalleryUrls { get; set; }
     public List<DocumentDto>? Documents { get; set; }
+    public List<string>? Objectives { get; set; }
+    public List<string>? TechStack { get; set; }
     public string? Status { get; set; }
 }

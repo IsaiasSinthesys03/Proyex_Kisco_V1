@@ -13,6 +13,12 @@ public class Project : BaseEntity
     [BsonElement("teamMembers")]
     public List<string> TeamMembers { get; set; } = new();
 
+    [BsonElement("objectives")]
+    public List<string> Objectives { get; set; } = new();
+
+    [BsonElement("techStack")]
+    public List<string> TechStack { get; set; } = new();
+
     [BsonElement("category")]
     public required string Category { get; set; }
 

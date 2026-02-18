@@ -22,4 +22,7 @@ public class CreateProjectDto
     public string? VideoUrl { get; set; }
     public List<string> GalleryUrls { get; set; } = new();
     public List<DocumentDto> Documents { get; set; } = new();
+
+    public List<string> Objectives { get; set; } = new();
+    public List<string> TechStack { get; set; } = new();
 }

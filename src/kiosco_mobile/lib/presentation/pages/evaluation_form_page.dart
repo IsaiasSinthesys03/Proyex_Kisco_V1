@@ -5,11 +5,12 @@ import '../../core/constants.dart';
 import '../../core/local_data_manager.dart';
 import '../../data/datasources/api_service.dart';
 import '../../data/models/evaluation_template_model.dart';
-import '../../data/models/project_model.dart';
+import '../../domain/entities/project.dart';
+import '../../core/sync_service.dart'; // Import SyncService
 import 'feedback_page.dart';
 
 class EvaluationFormPage extends StatefulWidget {
-  final ProjectModel project;
+  final Project project; // Changed to Project
 
   const EvaluationFormPage({super.key, required this.project});
 

@@ -9,60 +9,115 @@ class ProjectCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProjectDetailPage(project: project),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProjectDetailPage(project: project),
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(16),
+          // Sombra suave estilo Figma
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
-          );
-        },
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Imagen de Portada (Ocupa la mayor parte de la tarjeta)
             Expanded(
               child: Stack(
+                fit: StackFit.expand,
                 children: [
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                      image: project.coverImageUrl != null
-                          ? DecorationImage(
-                              image: NetworkImage(project.coverImageUrl!),
-                              fit: BoxFit.cover,
-                            )
-                          : null,
-                    ),
-                    child: project.coverImageUrl == null
-                        ? const Icon(Icons.image_outlined, size: 40)
-                        : null,
-                  ),
-                  Positioned(
-                    top: 8,
-                    left: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        project.category.toUpperCase(),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+                  project.coverImageUrl != null && project.coverImageUrl!.isNotEmpty
+                        ? Image.network(
+                            project.coverImageUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.image_not_supported_outlined, 
+                                    size: 30, 
+                                    color: Theme.of(context).colorScheme.outline
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text('Imagen no disponible', 
+                                    style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.outline)
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        : Container(
+                            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            child: Icon(Icons.image, size: 40, color: Theme.of(context).colorScheme.outline),
+                          ),
+                    
+                    // Badge de Categoría Flotante (Top Left)
+                    Positioned(
+                      top: 10,
+                      left: 10,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: _getCategoryColor(context, project.category),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          project.category,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
-                  ),
+  
+                    // Logo del Proyecto (Bottom Left overlay)
+                    if (project.iconUrl != null)
+                      Positioned(
+                        bottom: 8,
+                        left: 8,
+                        child: Container(
+                          width: 34,
+                          height: 34,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surface,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 2),
+                            boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
+                          ),
+                          child: ClipOval(
+                            child: Image.network(
+                              project.iconUrl!, 
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) => Container(
+                                color: Theme.of(context).colorScheme.surface,
+                                child: Icon(Icons.business, size: 20, color: Theme.of(context).colorScheme.primary),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                 ],
               ),
             ),
+            
+            // Información del Proyecto
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
@@ -70,16 +125,25 @@ class ProjectCard extends StatelessWidget {
                 children: [
                   Text(
                     project.title,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800, 
+                      fontSize: 15,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 4),
+                  // Nombre de la Empresa o Autor (Texto secundario/verde opaco)
                   Text(
-                    'Por: ID-${project.id.substring(project.id.length - 4)}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                        ),
+                    project.companyName ?? 'Equipo Independiente', // Asumo que el modelo tiene este campo o similar
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary, // Usa el color primary para el autor
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -88,5 +152,18 @@ class ProjectCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Color _getCategoryColor(BuildContext context, String category) {
+    // Colores específicos por categoría según diseño, fallback al primary
+    switch (category.toLowerCase()) {
+      case 'gaming': return const Color(0xFF2E7D32); // Verde oscuro gaming
+      case 'software': return const Color(0xFF1B5E20); // Verde corporativo
+      case 'urbano': return const Color(0xFF00695C); // Teal
+      case 'social': return const Color(0xFF558B2F); // Light Green
+      case 'salud': return const Color(0xFF2E7D32);
+      case 'ambiente': return const Color(0xFF43A047); 
+      default: return Theme.of(context).colorScheme.primary;
+    }
   }
 }

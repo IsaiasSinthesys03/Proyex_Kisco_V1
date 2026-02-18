@@ -650,7 +650,9 @@ function App() {
       setEditingProject(project);
       setFormData({
         ...project,
-        teamMembers: project.teamMembers?.join(', ') || ''
+        teamMembers: project.teamMembers?.join(', ') || '',
+        objectives: project.objectives?.join('\n') || '',
+        techStack: project.techStack?.join(', ') || ''
       });
     } else {
       setEditingProject(null);
@@ -663,7 +665,9 @@ function App() {
         videoUrl: '',
         galleryUrls: [],
         documents: [],
-        status: 'Active'
+        status: 'Active',
+        objectives: '',
+        techStack: ''
       });
     }
     setIsModalOpen(true);
@@ -832,7 +836,9 @@ function App() {
 
     const payload = {
       ...formData,
-      teamMembers: (formData.teamMembers || '').split(',').map(m => m.trim()).filter(m => m !== '')
+      teamMembers: (typeof formData.teamMembers === 'string' ? formData.teamMembers : '').split(',').map(m => m.trim()).filter(m => m !== ''),
+      objectives: (typeof formData.objectives === 'string' ? formData.objectives : '').split('\n').map(o => o.trim()).filter(o => o !== ''),
+      techStack: (typeof formData.techStack === 'string' ? formData.techStack : '').split(',').map(t => t.trim()).filter(t => t !== '')
     };
 
     try {
@@ -1865,6 +1871,16 @@ function App() {
                 <div className="form-group">
                   <label>Descripción del Proyecto</label>
                   <textarea name="description" className="form-input" rows="4" required value={formData.description} onChange={handleInputChange} placeholder="Detalles de la forja..."></textarea>
+                </div>
+
+                <div className="form-group">
+                  <label>Objetivos (Uno por línea)</label>
+                  <textarea name="objectives" className="form-input" rows="3" value={formData.objectives} onChange={handleInputChange} placeholder="Mejorar la eficiencia..."></textarea>
+                </div>
+
+                <div className="form-group">
+                  <label>Stack Tecnológico (Separado por comas)</label>
+                  <input type="text" name="techStack" className="form-input" value={formData.techStack} onChange={handleInputChange} placeholder="React, Node.js, Python..." />
                 </div>
 
                 <div className="form-row" style={{ marginTop: '0.5rem' }}>
