@@ -13,21 +13,17 @@ class ApiService {
 
   Future<Map<String, String>> _getHeaders() async {
     final uuid = await LocalDataManager.getOrCreateUuid();
-    return {
-      'Content-Type': 'application/json',
-      'X-Device-UUID': uuid,
-    };
+    return {'Content-Type': 'application/json', 'X-Device-UUID': uuid};
   }
 
   Future<List<ProjectModel>> getProjects() async {
     final url = '$baseUrl${AppConstants.projectsEndpoint}';
     try {
       final headers = await _getHeaders();
-      final response = await http.get(
-        Uri.parse(url),
-        headers: headers,
-      ).timeout(const Duration(seconds: 10));
-      
+      final response = await http
+          .get(Uri.parse(url), headers: headers)
+          .timeout(const Duration(seconds: 10));
+
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         return data.map((item) => ProjectModel.fromJson(item)).toList();
@@ -39,14 +35,31 @@ class ApiService {
     }
   }
 
+  Future<ProjectModel> getProjectById(String id) async {
+    final url = '$baseUrl${AppConstants.projectsEndpoint}/$id';
+    try {
+      final headers = await _getHeaders();
+      final response = await http
+          .get(Uri.parse(url), headers: headers)
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        return ProjectModel.fromJson(json.decode(response.body));
+      } else {
+        throw Exception('Error al cargar proyecto: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Fallo de conexión: $e');
+    }
+  }
+
   Future<EvaluationTemplateModel> getActiveTemplate() async {
     final url = '$baseUrl${AppConstants.templateEndpoint}';
     try {
       final headers = await _getHeaders();
-      final response = await http.get(
-        Uri.parse(url),
-        headers: headers,
-      ).timeout(const Duration(seconds: 10));
+      final response = await http
+          .get(Uri.parse(url), headers: headers)
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         return EvaluationTemplateModel.fromJson(json.decode(response.body));
@@ -62,11 +75,9 @@ class ApiService {
     final url = '$baseUrl${AppConstants.evaluateEndpoint}';
     try {
       final headers = await _getHeaders();
-      final response = await http.post(
-        Uri.parse(url),
-        headers: headers,
-        body: json.encode(data),
-      ).timeout(const Duration(seconds: 15));
+      final response = await http
+          .post(Uri.parse(url), headers: headers, body: json.encode(data))
+          .timeout(const Duration(seconds: 15));
 
       return response.statusCode == 200;
     } catch (e) {
@@ -78,31 +89,29 @@ class ApiService {
     final url = '$baseUrl${AppConstants.rankingEndpoint}';
     try {
       final headers = await _getHeaders();
-      final response = await http.get(
-        Uri.parse(url),
-        headers: headers,
-      ).timeout(const Duration(seconds: 10));
+      final response = await http
+          .get(Uri.parse(url), headers: headers)
+          .timeout(const Duration(seconds: 10));
 
       print('🌐 API DEBUG: Ranking Status Code: ${response.statusCode}');
       print('🌐 API DEBUG: Ranking Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);
-        
+
         if (decoded is Map && decoded['status'] == 'hidden') {
           print('🌐 API DEBUG: Ranking is HIDDEN');
-          return RankingResponse(
-            isPublic: false, 
-            message: decoded['message']
-          );
+          return RankingResponse(isPublic: false, message: decoded['message']);
         }
-        
+
         if (decoded is List) {
           print('🌐 API DEBUG: Ranking is PUBLIC (${decoded.length} items)');
-          final items = decoded.map((item) => RankingItem.fromJson(item)).toList();
+          final items = decoded
+              .map((item) => RankingItem.fromJson(item))
+              .toList();
           return RankingResponse(isPublic: true, items: items);
         }
-        
+
         return RankingResponse(isPublic: false);
       } else {
         throw Exception('Error al cargar ranking: ${response.statusCode}');

@@ -4,6 +4,7 @@ import 'core/config/theme.dart';
 import 'core/constants.dart';
 import 'presentation/pages/home_page.dart';
 import 'presentation/pages/ranking_page.dart';
+import 'presentation/pages/splash_screen.dart';
 
 void main() {
   runApp(const ProyexApp());
@@ -13,7 +14,9 @@ class ProyexApp extends StatelessWidget {
   const ProyexApp({super.key});
 
   // Notificador global para el modo de tema
-  static final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.system);
+  static final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(
+    ThemeMode.system,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +29,7 @@ class ProyexApp extends StatelessWidget {
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: currentMode,
-          home: const MainNavigationScreen(),
+          home: const SplashScreen(),
         );
       },
     );
@@ -43,21 +46,16 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _selectedIndex = 0;
 
-  final List<Widget> _screens = [
-    const HomePage(),
-    const RankingScreen(),
-  ];
+  final List<Widget> _screens = [const HomePage(), const RankingScreen()];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _screens,
-      ),
+      body: IndexedStack(index: _selectedIndex, children: _screens),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) => setState(() => _selectedIndex = index),
+        onDestinationSelected: (index) =>
+            setState(() => _selectedIndex = index),
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.grid_view_outlined),

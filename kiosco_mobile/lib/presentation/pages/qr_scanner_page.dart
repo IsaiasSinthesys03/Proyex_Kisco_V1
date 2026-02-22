@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:go_router/go_router.dart';
+import 'project_detail_page.dart';
 
 class QRScannerPage extends StatefulWidget {
   const QRScannerPage({super.key});
@@ -9,7 +9,8 @@ class QRScannerPage extends StatefulWidget {
   State<QRScannerPage> createState() => _QRScannerPageState();
 }
 
-class _QRScannerPageState extends State<QRScannerPage> with WidgetsBindingObserver {
+class _QRScannerPageState extends State<QRScannerPage>
+    with WidgetsBindingObserver {
   late MobileScannerController _controller;
   bool _isProcessing = false;
 
@@ -56,23 +57,32 @@ class _QRScannerPageState extends State<QRScannerPage> with WidgetsBindingObserv
     final List<Barcode> barcodes = capture.barcodes;
     if (barcodes.isNotEmpty) {
       final String? code = barcodes.first.rawValue;
-      
+
       if (code != null) {
         debugPrint('Código: $code');
         setState(() => _isProcessing = true);
-        
+
         // Asumimos que el QR contiene el ID del proyecto directamente
         // o una URL tipo "proyex://project/{id}"
         String projectId = code;
-        
+
         // Lógica simple de extracción
         if (code.contains('/')) {
-            projectId = code.split('/').last;
+          projectId = code.split('/').last;
         }
 
-        // Navegar al detalle usando GoRouter
+        // Navegar al detalle usando Navigator nativo y el Loader dinámico
         if (mounted) {
-            context.push('/project/$projectId');
+          // 1. Pausar la cámara
+          _controller.stop();
+
+          // 2. Navegar (Se reemplaza el escáner para que al volver se dirija a Home)
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProjectDetailLoader(projectId: projectId),
+            ),
+          );
         }
       }
     }
@@ -83,7 +93,10 @@ class _QRScannerPageState extends State<QRScannerPage> with WidgetsBindingObserv
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Escanear Proyecto', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Escanear Proyecto',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -96,7 +109,9 @@ class _QRScannerPageState extends State<QRScannerPage> with WidgetsBindingObserv
                   return const SizedBox();
                 }
                 return Icon(
-                  state.torchState == TorchState.off ? Icons.flash_off : Icons.flash_on,
+                  state.torchState == TorchState.off
+                      ? Icons.flash_off
+                      : Icons.flash_on,
                   color: Colors.white,
                 );
               },
@@ -111,7 +126,7 @@ class _QRScannerPageState extends State<QRScannerPage> with WidgetsBindingObserv
                   return const SizedBox();
                 }
                 return Icon(
-                   _controller.facing == CameraFacing.front
+                  _controller.facing == CameraFacing.front
                       ? Icons.camera_front
                       : Icons.camera_rear,
                   color: Colors.white,
@@ -124,13 +139,12 @@ class _QRScannerPageState extends State<QRScannerPage> with WidgetsBindingObserv
       ),
       body: Stack(
         children: [
-          MobileScanner(
-            controller: _controller,
-            onDetect: _onDetect,
-          ),
+          MobileScanner(controller: _controller, onDetect: _onDetect),
           // Sombra oscura semitransparente con recorte
           CustomPaint(
-            painter: ScannerOverlayPainter(borderColor: Theme.of(context).primaryColor),
+            painter: ScannerOverlayPainter(
+              borderColor: Theme.of(context).primaryColor,
+            ),
             child: Container(),
           ),
           // Instrucciones
@@ -140,14 +154,21 @@ class _QRScannerPageState extends State<QRScannerPage> with WidgetsBindingObserv
             right: 0,
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.black54,
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: const Text(
                   'Apunta al código QR',
-                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ),
@@ -177,11 +198,11 @@ class ScannerOverlayPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final double width = size.width;
     final double height = size.height;
-    
+
     final backgroundPaint = Paint()
       ..color = Colors.black.withOpacity(0.5)
       ..style = PaintingStyle.fill;
-    
+
     final borderPaint = Paint()
       ..color = borderColor
       ..style = PaintingStyle.stroke
@@ -203,14 +224,14 @@ class ScannerOverlayPainter extends CustomPainter {
     canvas.saveLayer(rect, backgroundPaint);
     canvas.drawRect(rect, backgroundPaint);
     canvas.drawRRect(
-      RRect.fromRectAndRadius(cutOutRect, Radius.circular(borderRadius)), 
-      boxPaint
+      RRect.fromRectAndRadius(cutOutRect, Radius.circular(borderRadius)),
+      boxPaint,
     );
     canvas.restore();
 
     // 2. Dibujar las esquinas del borde
     final path = Path();
-    
+
     // Top Left
     path.moveTo(cutOutRect.left, cutOutRect.top + borderLength);
     path.lineTo(cutOutRect.left, cutOutRect.top);

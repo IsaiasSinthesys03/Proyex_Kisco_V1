@@ -3,6 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../domain/entities/project.dart';
 import 'evaluation_form_page.dart';
+import '../../data/datasources/api_service.dart';
+import '../../core/constants.dart';
+import '../../data/models/project_model.dart';
 
 class ProjectDetailPage extends StatelessWidget {
   final Project project;
@@ -23,7 +26,10 @@ class ProjectDetailPage extends StatelessWidget {
     final uri = Uri.parse(url);
 
     try {
-      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      final launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
       if (!launched) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -56,7 +62,11 @@ class ProjectDetailPage extends StatelessWidget {
     }
   }
 
-  void _showGallery(BuildContext context, List<String> images, int initialIndex) {
+  void _showGallery(
+    BuildContext context,
+    List<String> images,
+    int initialIndex,
+  ) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -85,7 +95,9 @@ class ProjectDetailPage extends StatelessWidget {
                       fit: BoxFit.contain,
                       loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) return child;
-                        return const Center(child: CircularProgressIndicator(color: Colors.white));
+                        return const Center(
+                          child: CircularProgressIndicator(color: Colors.white),
+                        );
                       },
                     ),
                   ),
@@ -104,8 +116,9 @@ class ProjectDetailPage extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     // 1. El Logo pequeño debe ser estrictamente el iconUrl
-    final String? effectiveLogoUrl = (project.iconUrl != null && project.iconUrl!.isNotEmpty) 
-        ? project.iconUrl 
+    final String? effectiveLogoUrl =
+        (project.iconUrl != null && project.iconUrl!.isNotEmpty)
+        ? project.iconUrl
         : null;
 
     print('🔍 DEBUG LOGO: project.iconUrl = ${project.iconUrl}');
@@ -113,7 +126,8 @@ class ProjectDetailPage extends StatelessWidget {
 
     // 2. El Banner (imagen grande) debe ser el coverImageUrl, y ser la primera en la galería
     final List<String> slideshowImages = [
-      if (project.coverImageUrl != null && project.coverImageUrl!.isNotEmpty) project.coverImageUrl!,
+      if (project.coverImageUrl != null && project.coverImageUrl!.isNotEmpty)
+        project.coverImageUrl!,
       ...project.galleryUrls,
     ].toList();
 
@@ -137,7 +151,11 @@ class ProjectDetailPage extends StatelessWidget {
                               itemCount: slideshowImages.length,
                               itemBuilder: (context, index) {
                                 return GestureDetector(
-                                  onTap: () => _showGallery(context, slideshowImages, index),
+                                  onTap: () => _showGallery(
+                                    context,
+                                    slideshowImages,
+                                    index,
+                                  ),
                                   child: Hero(
                                     tag: slideshowImages[index],
                                     child: Image.network(
@@ -150,14 +168,16 @@ class ProjectDetailPage extends StatelessWidget {
                             )
                           : Container(color: theme.colorScheme.surfaceVariant),
                     ),
-                    
+
                     // El contenedor de contenido (Blanco/Oscuro)
                     Container(
                       margin: const EdgeInsets.only(top: 280),
                       padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.background,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(40),
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,38 +186,47 @@ class ProjectDetailPage extends StatelessWidget {
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                               const SizedBox(width: 125), 
+                              const SizedBox(width: 125),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const SizedBox(height: 10), 
+                                    const SizedBox(height: 10),
                                     LayoutBuilder(
                                       builder: (context, constraints) {
                                         // Escala mucho más agresiva para nombres largos
                                         double fontSize = 28;
-                                        if (project.title.length > 20) fontSize = 18;
-                                        else if (project.title.length > 15) fontSize = 20;
-                                        else if (project.title.length > 10) fontSize = 22;
-                                        
+                                        if (project.title.length > 20)
+                                          fontSize = 18;
+                                        else if (project.title.length > 15)
+                                          fontSize = 20;
+                                        else if (project.title.length > 10)
+                                          fontSize = 22;
+
                                         return Text(
                                           project.title,
-                                          style: theme.textTheme.headlineSmall?.copyWith(
-                                            fontWeight: FontWeight.bold, 
-                                            fontSize: fontSize,
-                                            height: 1.1,
-                                            letterSpacing: -0.5
-                                          ),
+                                          style: theme.textTheme.headlineSmall
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: fontSize,
+                                                height: 1.1,
+                                                letterSpacing: -0.5,
+                                              ),
                                           maxLines: 2,
-                                          overflow: TextOverflow.visible, // Permitir que se vea bien
+                                          overflow: TextOverflow
+                                              .visible, // Permitir que se vea bien
                                         );
-                                      }
+                                      },
                                     ),
                                     const SizedBox(height: 14),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 18,
+                                        vertical: 10,
+                                      ),
                                       decoration: BoxDecoration(
-                                        color: theme.colorScheme.primary.withOpacity(0.1),
+                                        color: theme.colorScheme.primary
+                                            .withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(25),
                                       ),
                                       child: Text(
@@ -206,7 +235,7 @@ class ProjectDetailPage extends StatelessWidget {
                                           color: theme.colorScheme.primary,
                                           fontWeight: FontWeight.w900,
                                           fontSize: 12,
-                                          letterSpacing: 0.5
+                                          letterSpacing: 0.5,
                                         ),
                                       ),
                                     ),
@@ -221,21 +250,31 @@ class ProjectDetailPage extends StatelessWidget {
 
                     // EL LOGO: POSICIÓN MÁS BAJA
                     Positioned(
-                      top: 258, // Bajado de 240 a 258 para alineación casi total con el título
+                      top:
+                          258, // Bajado de 240 a 258 para alineación casi total con el título
                       left: 24,
                       child: Container(
                         width: 115,
                         height: 115,
                         decoration: BoxDecoration(
-                          color: isDark ? theme.colorScheme.surface : Colors.white,
+                          color: isDark
+                              ? theme.colorScheme.surface
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(36),
-                          border: Border.all(color: theme.colorScheme.outlineVariant.withOpacity(0.3), width: 1),
+                          border: Border.all(
+                            color: theme.colorScheme.outlineVariant.withOpacity(
+                              0.3,
+                            ),
+                            width: 1,
+                          ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05), // Sombra más integrada
+                              color: Colors.black.withOpacity(
+                                0.05,
+                              ), // Sombra más integrada
                               blurRadius: 25,
                               offset: const Offset(0, 10),
-                            )
+                            ),
                           ],
                         ),
                         padding: const EdgeInsets.all(8),
@@ -245,9 +284,17 @@ class ProjectDetailPage extends StatelessWidget {
                               ? Image.network(
                                   effectiveLogoUrl,
                                   fit: BoxFit.contain,
-                                  errorBuilder: (_, __, ___) => Icon(Icons.business, color: theme.colorScheme.primary, size: 60),
+                                  errorBuilder: (_, __, ___) => Icon(
+                                    Icons.business,
+                                    color: theme.colorScheme.primary,
+                                    size: 60,
+                                  ),
                                 )
-                              : Icon(Icons.apps_rounded, color: theme.colorScheme.primary, size: 60),
+                              : Icon(
+                                  Icons.apps_rounded,
+                                  color: theme.colorScheme.primary,
+                                  size: 60,
+                                ),
                         ),
                       ),
                     ),
@@ -266,15 +313,23 @@ class ProjectDetailPage extends StatelessWidget {
                       if (project.teamMembers.isNotEmpty) ...[
                         RichText(
                           text: TextSpan(
-                            style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              height: 1.5,
+                            ),
                             children: [
                               TextSpan(
                                 text: 'Autores:  ',
-                                style: TextStyle(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.colorScheme.onSurface,
+                                ),
                               ),
                               TextSpan(
                                 text: project.teamMembers.join(' - '),
-                                style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.8)),
+                                style: TextStyle(
+                                  color: theme.colorScheme.onSurface
+                                      .withOpacity(0.8),
+                                ),
                               ),
                             ],
                           ),
@@ -282,10 +337,15 @@ class ProjectDetailPage extends StatelessWidget {
                         const SizedBox(height: 32),
                       ],
 
-                      _buildStyledCard(theme, 'Descripción', project.description),
+                      _buildStyledCard(
+                        theme,
+                        'Descripción',
+                        project.description,
+                      ),
                       const SizedBox(height: 32),
 
-                      if (project.videoUrl != null && project.videoUrl!.isNotEmpty) ...[
+                      if (project.videoUrl != null &&
+                          project.videoUrl!.isNotEmpty) ...[
                         _buildSectionTitle(theme, 'Vídeo Demo'),
                         const SizedBox(height: 12),
                         InkWell(
@@ -297,14 +357,22 @@ class ProjectDetailPage extends StatelessWidget {
                               color: Colors.black,
                               borderRadius: BorderRadius.circular(20),
                               image: (project.coverImageUrl != null)
-                                ? DecorationImage(
-                                    image: NetworkImage(project.coverImageUrl!), 
-                                    fit: BoxFit.cover, 
-                                    opacity: 0.5
-                                  )
-                                : null,
+                                  ? DecorationImage(
+                                      image: NetworkImage(
+                                        project.coverImageUrl!,
+                                      ),
+                                      fit: BoxFit.cover,
+                                      opacity: 0.5,
+                                    )
+                                  : null,
                             ),
-                            child: const Center(child: Icon(Icons.play_circle_fill, size: 70, color: Colors.white)),
+                            child: const Center(
+                              child: Icon(
+                                Icons.play_circle_fill,
+                                size: 70,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 32),
@@ -313,20 +381,37 @@ class ProjectDetailPage extends StatelessWidget {
                       if (project.objectives.isNotEmpty) ...[
                         _buildSectionTitle(theme, 'Objetivos'),
                         const SizedBox(height: 12),
-                        ...project.objectives.map((obj) => Padding(
-                          padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(top: 6.0),
-                                child: Icon(Icons.fiber_manual_record, size: 8, color: theme.colorScheme.onSurface),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(child: Text(obj, style: const TextStyle(fontSize: 15, height: 1.4))),
-                            ],
+                        ...project.objectives.map(
+                          (obj) => Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: 8.0,
+                              left: 4.0,
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 6.0),
+                                  child: Icon(
+                                    Icons.fiber_manual_record,
+                                    size: 8,
+                                    color: theme.colorScheme.onSurface,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    obj,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        )),
+                        ),
                         const SizedBox(height: 32),
                       ],
 
@@ -336,18 +421,27 @@ class ProjectDetailPage extends StatelessWidget {
                         Wrap(
                           spacing: 8,
                           runSpacing: 10,
-                          children: project.techStack.map((tech) => Chip(
-                            label: Text(tech),
-                            backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
-                            labelStyle: TextStyle(
-                              color: theme.colorScheme.primary, 
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13
-                            ),
-                            side: BorderSide.none,
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          )).toList(),
+                          children: project.techStack
+                              .map(
+                                (tech) => Chip(
+                                  label: Text(tech),
+                                  backgroundColor: theme.colorScheme.primary
+                                      .withOpacity(0.1),
+                                  labelStyle: TextStyle(
+                                    color: theme.colorScheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                  side: BorderSide.none,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              )
+                              .toList(),
                         ),
                         const SizedBox(height: 32),
                       ],
@@ -363,18 +457,27 @@ class ProjectDetailPage extends StatelessWidget {
                               onPressed: () => _launchUrl(context, doc.url),
                               style: OutlinedButton.styleFrom(
                                 minimumSize: const Size(double.infinity, 50),
-                                side: BorderSide(color: theme.colorScheme.primary),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                                side: BorderSide(
+                                  color: theme.colorScheme.primary,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
                                 foregroundColor: theme.colorScheme.primary,
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(isPdf ? Icons.download : Icons.open_in_new, size: 18),
+                                  Icon(
+                                    isPdf ? Icons.download : Icons.open_in_new,
+                                    size: 18,
+                                  ),
                                   const SizedBox(width: 8),
                                   Text(
                                     '${doc.title}${isPdf ? " (PDF)" : ""}',
-                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -382,7 +485,7 @@ class ProjectDetailPage extends StatelessWidget {
                           );
                         }),
                       ],
-                      
+
                       const SizedBox(height: 140),
                     ],
                   ),
@@ -402,9 +505,18 @@ class ProjectDetailPage extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: theme.colorScheme.primary,
                   shape: BoxShape.circle,
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 8)],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 8,
+                    ),
+                  ],
                 ),
-                child: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
+                child: const Icon(
+                  Icons.arrow_back,
+                  color: Colors.white,
+                  size: 24,
+                ),
               ),
             ),
           ),
@@ -421,18 +533,31 @@ class ProjectDetailPage extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [theme.colorScheme.background.withOpacity(0), theme.colorScheme.background],
+                  colors: [
+                    theme.colorScheme.background.withOpacity(0),
+                    theme.colorScheme.background,
+                  ],
                   stops: const [0, 0.2],
                 ),
               ),
               child: FilledButton(
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => EvaluationFormPage(project: project))),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EvaluationFormPage(project: project),
+                  ),
+                ),
                 style: FilledButton.styleFrom(
                   minimumSize: const Size(double.infinity, 56),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   backgroundColor: theme.colorScheme.primary,
                 ),
-                child: const Text('Evaluar Proyecto', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+                child: const Text(
+                  'Evaluar Proyecto',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                ),
               ),
             ),
           ),
@@ -443,12 +568,12 @@ class ProjectDetailPage extends StatelessWidget {
 
   Widget _buildSectionTitle(ThemeData theme, String title) {
     return Text(
-      title, 
+      title,
       style: TextStyle(
-        fontSize: 18, 
-        fontWeight: FontWeight.bold, 
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
         color: theme.colorScheme.primary,
-      )
+      ),
     );
   }
 
@@ -456,6 +581,7 @@ class ProjectDetailPage extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
+      // ... original code till the end inside ProjectDetailPage
       decoration: BoxDecoration(
         color: theme.colorScheme.primary.withOpacity(0.04),
         borderRadius: BorderRadius.circular(24),
@@ -483,6 +609,63 @@ class ProjectDetailPage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class ProjectDetailLoader extends StatefulWidget {
+  final String projectId;
+  const ProjectDetailLoader({super.key, required this.projectId});
+
+  @override
+  State<ProjectDetailLoader> createState() => _ProjectDetailLoaderState();
+}
+
+class _ProjectDetailLoaderState extends State<ProjectDetailLoader> {
+  final ApiService _apiService = ApiService(baseUrl: AppConstants.baseUrl);
+  late Future<ProjectModel> _projectFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _projectFuture = _apiService.getProjectById(widget.projectId);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<ProjectModel>(
+      future: _projectFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (snapshot.hasError || !snapshot.hasData) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Error')),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.cloud_off, size: 60, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No se pudo encontrar el proyecto.',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Volver'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        return ProjectDetailPage(project: snapshot.data!);
+      },
     );
   }
 }
