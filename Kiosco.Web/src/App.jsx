@@ -1154,7 +1154,11 @@ function App() {
                       <XAxis type="number" domain={[0, 5]} hide />
                       <YAxis dataKey="title" type="category" width={120} style={{ fontSize: '0.8rem', fontWeight: 600 }} />
                       <ReTooltip cursor={{ fill: 'transparent' }} contentStyle={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8 }} />
-                      <Bar name="Promedio" dataKey="averageScore" fill="var(--primary)" radius={[0, 4, 4, 0]} barSize={20} />
+                      <Bar name="Promedio" dataKey="averageScore" radius={[0, 4, 4, 0]} barSize={20}>
+                        {(dashboardStats?.topProjects || []).map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.status === 'Inactive' ? 'var(--text-muted)' : 'var(--primary)'} />
+                        ))}
+                      </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -1339,7 +1343,7 @@ function App() {
                     </td></tr>
                   ) : (projects?.length > 0) ? (
                     projects.map(p => (
-                      <tr key={p.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                      <tr key={p.id} style={{ borderBottom: '1px solid var(--border)', opacity: p.status === 'Inactive' ? 0.6 : 1, filter: p.status === 'Inactive' ? 'grayscale(0.8)' : 'none' }}>
                         <td style={{ padding: '1.25rem' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                             {p.iconUrl ? (
@@ -1437,7 +1441,7 @@ function App() {
                     </td></tr>
                   ) : (evaluations?.length > 0) ? (
                     evaluations.map((ev, index) => (
-                      <tr key={ev.id || index} style={{ borderBottom: '1px solid var(--border)' }}>
+                      <tr key={ev.id || index} style={{ borderBottom: '1px solid var(--border)', opacity: ev.status === 'Inactive' ? 0.6 : 1 }}>
                         <td style={{ padding: '1.25rem' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                             {index === 0 && <Trophy size={24} style={{ color: 'gold' }} />}
@@ -1447,12 +1451,15 @@ function App() {
                           </div>
                         </td>
                         <td style={{ padding: '1.25rem' }}>
-                          <div style={{ fontWeight: 700 }}>{ev.title || 'Sin título'}</div>
+                          <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            {ev.title || 'Sin título'}
+                            {ev.status === 'Inactive' && <span style={{ fontSize: '0.65rem', backgroundColor: 'var(--error)', color: 'white', padding: '0.1rem 0.4rem', borderRadius: 4 }}>ARCHIVADO</span>}
+                          </div>
                         </td>
                         <td style={{ padding: '1.25rem' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <Star size={18} style={{ color: 'gold', fill: 'gold' }} />
-                            <span style={{ fontWeight: 800, fontSize: '1.5rem', color: 'var(--primary)' }}>
+                            <Star size={18} style={{ color: ev.status === 'Inactive' ? 'var(--text-muted)' : 'gold', fill: ev.status === 'Inactive' ? 'var(--text-muted)' : 'gold' }} />
+                            <span style={{ fontWeight: 800, fontSize: '1.5rem', color: ev.status === 'Inactive' ? 'var(--text-muted)' : 'var(--primary)' }}>
                               {ev.averageScore?.toFixed(2) || '0.00'}
                             </span>
                             <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>/ 5.0</span>

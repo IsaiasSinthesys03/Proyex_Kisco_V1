@@ -26,6 +26,7 @@ public class ProjectRankingDto
     public string Title { get; set; } = string.Empty;
     public double AverageScore { get; set; }
     public int VoteCount { get; set; }
+    public string Status { get; set; } = "Active";
 }
 
 public class RecentEvaluationDto

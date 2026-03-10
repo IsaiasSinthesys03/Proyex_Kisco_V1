@@ -61,7 +61,8 @@ public class DashboardService : IDashboardService
                 ProjectId = p.Id,
                 Title = p.Title,
                 AverageScore = p.Stats.AverageScore,
-                VoteCount = p.Stats.VoteCount
+                VoteCount = p.Stats.VoteCount,
+                Status = p.Status
             })
             .ToList();
 

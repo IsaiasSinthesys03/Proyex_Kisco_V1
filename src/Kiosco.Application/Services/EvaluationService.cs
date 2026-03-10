@@ -75,10 +75,17 @@ public class EvaluationService : IEvaluationService
         await UpdateProjectStatsAsync(submitDto.ProjectId);
     }
 
-    public async Task<IEnumerable<object>> GetRankingAsync()
+    public async Task<IEnumerable<object>> GetRankingAsync(bool activeOnly = false)
     {
         var projects = await _projectRepo.GetAllAsync();
-        return projects
+        var query = projects.AsQueryable();
+        
+        if (activeOnly)
+        {
+            query = query.Where(p => p.Status == "Active");
+        }
+
+        return query
             .OrderByDescending(p => p.Stats.AverageScore)
             .ThenByDescending(p => p.Stats.VoteCount)
             .Select(p => new 
@@ -86,6 +93,7 @@ public class EvaluationService : IEvaluationService
                 p.Id,
                 p.Title,
                 p.Category,
+                p.Status,
                 AverageScore = p.Stats?.AverageScore ?? 0,
                 VoteCount = p.Stats?.VoteCount ?? 0
             });

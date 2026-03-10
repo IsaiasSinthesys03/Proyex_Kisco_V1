@@ -29,7 +29,7 @@ public class RankingController : ControllerBase
             return Ok(new { status = "hidden", message = "El ranking aún no es público." });
         }
 
-        var ranking = await _evaluationService.GetRankingAsync();
+        var ranking = await _evaluationService.GetRankingAsync(activeOnly: true);
         return Ok(ranking);
     }
 }
