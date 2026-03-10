@@ -35,7 +35,8 @@ public class MediaService : IMediaService
                 (p.CoverImageUrl != null && p.CoverImageUrl.EndsWith(fileHandle)) || 
                 (p.VideoUrl != null && p.VideoUrl.EndsWith(fileHandle)) || 
                 (p.IconUrl != null && p.IconUrl.EndsWith(fileHandle)) ||
-                (p.GalleryUrls != null && p.GalleryUrls.Any(g => g.EndsWith(fileHandle))));
+                (p.GalleryUrls != null && p.GalleryUrls.Any(g => g.EndsWith(fileHandle))) ||
+                (p.Documents != null && p.Documents.Any(d => d.Url != null && d.Url.EndsWith(fileHandle))));
 
             result.Add(new MediaFileDto
             {
