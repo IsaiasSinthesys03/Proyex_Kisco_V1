@@ -82,6 +82,7 @@ public class EvaluationService : IEvaluationService
         
         if (activeOnly)
         {
+            // Filtramos todo lo que NO sea Active de forma explícita
             query = query.Where(p => p.Status == "Active");
         }
 
@@ -90,12 +91,12 @@ public class EvaluationService : IEvaluationService
             .ThenByDescending(p => p.Stats.VoteCount)
             .Select(p => new 
             {
-                p.Id,
-                p.Title,
-                p.Category,
-                p.Status,
-                AverageScore = p.Stats?.AverageScore ?? 0,
-                VoteCount = p.Stats?.VoteCount ?? 0
+                id = p.Id,
+                title = p.Title,
+                category = p.Category,
+                status = p.Status,
+                averageScore = p.Stats != null ? p.Stats.AverageScore : 0,
+                voteCount = p.Stats != null ? p.Stats.VoteCount : 0
             });
     }
 

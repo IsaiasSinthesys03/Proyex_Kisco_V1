@@ -1439,8 +1439,8 @@ function App() {
                     <tr><td colSpan="5" style={{ textAlign: 'center', padding: '3rem' }}>
                       <RefreshCw size={32} className="animate-spin" style={{ color: 'var(--primary)' }} />
                     </td></tr>
-                  ) : (evaluations?.length > 0) ? (
-                    evaluations.map((ev, index) => (
+                  ) : (evaluations?.filter(ev => ev.status !== 'Inactive')?.length > 0) ? (
+                    evaluations.filter(ev => ev.status !== 'Inactive').map((ev, index) => (
                       <tr key={ev.id || index} style={{ borderBottom: '1px solid var(--border)', opacity: ev.status === 'Inactive' ? 0.6 : 1 }}>
                         <td style={{ padding: '1.25rem' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>

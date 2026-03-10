@@ -42,6 +42,7 @@ public class DashboardService : IDashboardService
 
         // Distribución por Categoría
         stats.CategoryDistribution = projects
+            .Where(p => p.Status == "Active")
             .GroupBy(p => p.Category)
             .Select(g => new CategoryDistributionDto
             {
@@ -53,6 +54,7 @@ public class DashboardService : IDashboardService
 
         // Top 5 Proyectos
         stats.TopProjects = projects
+            .Where(p => p.Status == "Active")
             .OrderByDescending(p => p.Stats.AverageScore)
             .ThenByDescending(p => p.Stats.VoteCount)
             .Take(5)
