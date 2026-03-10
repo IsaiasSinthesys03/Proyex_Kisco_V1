@@ -1341,8 +1341,21 @@ function App() {
                     projects.map(p => (
                       <tr key={p.id} style={{ borderBottom: '1px solid var(--border)' }}>
                         <td style={{ padding: '1.25rem' }}>
-                          <div style={{ fontWeight: 700 }}>{p.title}</div>
-                          <div className="text-muted" style={{ fontSize: '0.8rem' }}>{p.teamMembers?.join(', ') || 'Sin miembros'}</div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            {p.iconUrl ? (
+                              <img src={getMediaUrl(p.iconUrl)} style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'contain', background: 'var(--container-tint)' }} />
+                            ) : p.coverImageUrl ? (
+                              <img src={getMediaUrl(p.coverImageUrl)} style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover' }} />
+                            ) : (
+                              <div style={{ width: 40, height: 40, borderRadius: 8, background: 'var(--container-tint)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <FolderRoot size={20} style={{ opacity: 0.3 }} />
+                              </div>
+                            )}
+                            <div>
+                              <div style={{ fontWeight: 700 }}>{p.title}</div>
+                              <div className="text-muted" style={{ fontSize: '0.8rem' }}>{p.teamMembers?.join(', ') || 'Sin miembros'}</div>
+                            </div>
+                          </div>
                         </td>
                         <td style={{ padding: '1.25rem' }}>
                           <span className="status-badge" style={{ backgroundColor: 'var(--container-tint)', color: 'var(--primary)' }}>

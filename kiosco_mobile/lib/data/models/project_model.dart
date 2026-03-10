@@ -24,19 +24,20 @@ class ProjectModel extends Project {
     String? makeAbsolute(String? url) {
       if (url == null || url.isEmpty) return null;
 
-      String result = url;
-      // Para dispositivo físico, reemplazar localhost por la IP de la PC
-      if (url.startsWith('http')) {
-        result = url
-            .replaceAll('localhost', '10.3.1.35')
-            .replaceAll('127.0.0.1', '10.3.1.35');
-      } else {
-        final path = url.startsWith('/') ? url : '/$url';
-        result = '${AppConstants.baseUrl}$path';
+      // Si contiene /uploads/, forzamos el baseUrl actual (ignora IPs de otros admins)
+      if (url.contains('/uploads/')) {
+        final parts = url.split('/uploads/');
+        return '${AppConstants.baseUrl}/uploads/${parts.last}';
       }
 
-      print('🖼️ IMAGE DEBUG: Original: $url -> Result: $result');
-      return result;
+      if (url.startsWith('http')) {
+        return url
+            .replaceAll('localhost', '10.3.1.35')
+            .replaceAll('127.0.0.1', '10.3.1.35');
+      }
+
+      final path = url.startsWith('/') ? url : '/$url';
+      return '${AppConstants.baseUrl}$path';
     }
 
     return ProjectModel(
