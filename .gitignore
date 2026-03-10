@@ -37,8 +37,11 @@ bld/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
-# Uncomment if you have tasks that create the project's static files in wwwroot
-#wwwroot/
+# Static files and uploads
+!src/Kiosco.API/wwwroot/uploads/**
+!src/Kiosco.API/wwwroot/uploads/
+# Si prefieres ignorar archivos individuales y solo guardar la carpeta, usa .gitkeep
+# pero para la Opción A (sincronizar fotos), dejamos la regla de arriba activa.
 
 # Visual Studio 2017 auto generated files
 Generated\ Files/

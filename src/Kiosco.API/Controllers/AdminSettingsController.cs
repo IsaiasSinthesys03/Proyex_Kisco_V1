@@ -1,11 +1,13 @@
 using Kiosco.Application.Interfaces;
 using Kiosco.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Kiosco.API.Controllers;
 
 [ApiController]
 [Route("api/admin/[controller]")]
+[Authorize(Roles = "SuperAdmin,Admin")]
 public class AdminSettingsController : ControllerBase
 {
     private readonly ISettingsService _settingsService;

@@ -7,7 +7,7 @@ namespace Kiosco.API.Controllers;
 
 [ApiController]
 [Route("api/admin/[controller]")]
-[Authorize(Roles = "SuperAdmin")]
+[Authorize(Roles = "SuperAdmin,Admin")]
 public class AdminTemplatesController : ControllerBase
 {
     private readonly ITemplateService _templateService;

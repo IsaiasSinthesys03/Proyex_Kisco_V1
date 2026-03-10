@@ -61,14 +61,32 @@ import {
 } from 'recharts';
 import './index.css';
 
-const PROJECTS_API = 'http://localhost:5260/api/admin/Projects';
-const DASHBOARD_API = 'http://localhost:5260/api/admin/Dashboard/stats';
-const EVALUATIONS_API = 'http://localhost:5260/api/admin/AdminEvaluations';
-const SETTINGS_API = 'http://localhost:5260/api/admin/AdminSettings';
-const TEMPLATES_API = 'http://localhost:5260/api/admin/AdminTemplates';
-const MEDIA_API = 'http://localhost:5260/api/admin/AdminMedia';
-const FILES_API = 'http://localhost:5260/api/Files';
-const AUDIT_API = 'http://localhost:5260/api/admin/Audit';
+const API_BASE = 'http://localhost:5260';
+const PROJECTS_API = `${API_BASE}/api/admin/Projects`;
+const DASHBOARD_API = `${API_BASE}/api/admin/Dashboard/stats`;
+const EVALUATIONS_API = `${API_BASE}/api/admin/AdminEvaluations`;
+const SETTINGS_API = `${API_BASE}/api/admin/AdminSettings`;
+const TEMPLATES_API = `${API_BASE}/api/admin/AdminTemplates`;
+const MEDIA_API = `${API_BASE}/api/admin/AdminMedia`;
+const FILES_API = `${API_BASE}/api/Files`;
+const AUDIT_API = `${API_BASE}/api/admin/Audit`;
+
+const getMediaUrl = (url) => {
+  if (!url) return '';
+
+  // Si la URL contiene '/uploads/', forzamos el uso de nuestro API_BASE local.
+  // Esto soluciona problemas cuando se comparten bases de datos (MongoDB Atlas)
+  // pero los archivos están en el wwwroot local de diferentes máquinas.
+  if (url.includes('/uploads/')) {
+    const parts = url.split('/uploads/');
+    const relativePath = parts[parts.length - 1];
+    return `${API_BASE}/uploads/${relativePath}`;
+  }
+
+  if (url.startsWith('http')) return url;
+  const path = url.startsWith('/') ? url : `/${url}`;
+  return `${API_BASE}${path}`;
+};
 
 const COLORS = ['#1B5E20', '#4E7D50', '#81C784', '#A5D6A7', '#C8E6C9'];
 
@@ -1912,8 +1930,8 @@ function App() {
                       </label>
                     </div>
                     {formData.iconUrl && (
-                      <div className="preview-mini-clickable" onClick={() => setPreviewUrl(formData.iconUrl)}>
-                        <img src={formData.iconUrl} style={{ width: '100%', height: 120, objectFit: 'contain', borderRadius: 8, marginTop: 8, backgroundColor: 'var(--container-tint)' }} loading="lazy" />
+                      <div className="preview-mini-clickable" onClick={() => setPreviewUrl(getMediaUrl(formData.iconUrl))}>
+                        <img src={getMediaUrl(formData.iconUrl)} style={{ width: '100%', height: 120, objectFit: 'contain', borderRadius: 8, marginTop: 8, backgroundColor: 'var(--container-tint)' }} loading="lazy" />
                         <div className="preview-overlay-mini"><ExternalLink size={16} /></div>
                       </div>
                     )}
@@ -1932,8 +1950,8 @@ function App() {
                       </label>
                     </div>
                     {formData.coverImageUrl && (
-                      <div className="preview-mini-clickable" onClick={() => setPreviewUrl(formData.coverImageUrl)}>
-                        <img src={formData.coverImageUrl} style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 8, marginTop: 8 }} loading="lazy" />
+                      <div className="preview-mini-clickable" onClick={() => setPreviewUrl(getMediaUrl(formData.coverImageUrl))}>
+                        <img src={getMediaUrl(formData.coverImageUrl)} style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 8, marginTop: 8 }} loading="lazy" />
                         <div className="preview-overlay-mini"><ExternalLink size={16} /></div>
                       </div>
                     )}
@@ -1953,7 +1971,11 @@ function App() {
                         <input type="file" hidden accept="video/*" onChange={(e) => handleFileUpload(e, 'videoUrl')} disabled={uploadingField === 'videoUrl'} />
                       </label>
                     </div>
-                    {formData.videoUrl && <div className="video-container" style={{ marginTop: 8, height: 120 }}><video src={formData.videoUrl} controls /></div>}
+                    {formData.videoUrl && (
+                      <div className="video-container" style={{ marginTop: 8, height: 120 }}>
+                        <video src={getMediaUrl(formData.videoUrl)} controls />
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -1979,8 +2001,8 @@ function App() {
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
                       {formData.galleryUrls?.map((url, i) => (
                         <div key={i} className="gallery-preview-item">
-                          <img src={url} onClick={() => setPreviewUrl(url)} loading="lazy" />
-                          <div className="preview-overlay-mini" onClick={() => setPreviewUrl(url)}>
+                          <img src={getMediaUrl(url)} onClick={() => setPreviewUrl(getMediaUrl(url))} loading="lazy" />
+                          <div className="preview-overlay-mini" onClick={() => setPreviewUrl(getMediaUrl(url))}>
                             <ExternalLink size={14} />
                           </div>
                           <button type="button" onClick={() => removeFile('galleryUrls', i)} className="remove-btn-mini">

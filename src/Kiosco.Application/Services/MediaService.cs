@@ -30,10 +30,12 @@ public class MediaService : IMediaService
 
         foreach (var fileUrl in files)
         {
+            var fileHandle = fileUrl.Split('/').Last();
             var owner = projects.FirstOrDefault(p => 
-                p.CoverImageUrl == fileUrl || 
-                p.VideoUrl == fileUrl || 
-                p.IconUrl == fileUrl);
+                (p.CoverImageUrl != null && p.CoverImageUrl.EndsWith(fileHandle)) || 
+                (p.VideoUrl != null && p.VideoUrl.EndsWith(fileHandle)) || 
+                (p.IconUrl != null && p.IconUrl.EndsWith(fileHandle)) ||
+                (p.GalleryUrls != null && p.GalleryUrls.Any(g => g.EndsWith(fileHandle))));
 
             result.Add(new MediaFileDto
             {

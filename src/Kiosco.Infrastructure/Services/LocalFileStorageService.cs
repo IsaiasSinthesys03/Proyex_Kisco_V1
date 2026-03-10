@@ -17,7 +17,8 @@ public class LocalFileStorageService : IFileStorageService
 
     public async Task<string> SaveFileAsync(Stream fileStream, string fileName, string folder)
     {
-        var uploadsPath = Path.Combine(_env.WebRootPath, "uploads", folder);
+        var webRoot = _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot");
+        var uploadsPath = Path.Combine(webRoot, "uploads", folder);
         
         if (!Directory.Exists(uploadsPath))
         {
@@ -32,10 +33,8 @@ public class LocalFileStorageService : IFileStorageService
             await fileStream.CopyToAsync(stream);
         }
 
-        var request = _httpContextAccessor.HttpContext?.Request;
-        var baseUrl = $"{request?.Scheme}://{request?.Host}";
-        
-        return $"{baseUrl}/uploads/{folder}/{uniqueFileName}";
+        // Retornar ruta relativa para mayor compatibilidad entre ambientes
+        return $"/uploads/{folder}/{uniqueFileName}";
     }
 
     public Task DeleteFileAsync(string fileUrl)
@@ -44,33 +43,43 @@ public class LocalFileStorageService : IFileStorageService
 
         try
         {
-            var uri = new Uri(fileUrl);
-            var relativePath = uri.LocalPath; // /uploads/folder/filename
-            var fullPath = Path.Combine(_env.WebRootPath, relativePath.TrimStart('/'));
+            string relativePath;
+            if (Uri.TryCreate(fileUrl, UriKind.Absolute, out var uri))
+            {
+                relativePath = uri.LocalPath;
+            }
+            else
+            {
+                relativePath = fileUrl;
+            }
+
+            var webRoot = _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot");
+            var fullPath = Path.Combine(webRoot, relativePath.TrimStart('/'));
 
             if (File.Exists(fullPath))
             {
                 File.Delete(fullPath);
             }
         }
-        catch { /* Ignorar errores de URL mal formada */ }
+        catch { /* Ignorar errores */ }
 
         return Task.CompletedTask;
     }
 
     public Task<IEnumerable<string>> ListFilesAsync(string folder)
     {
-        var uploadsPath = Path.Combine(_env.WebRootPath, "uploads", folder);
+        var webRoot = _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot");
+        var uploadsPath = Path.Combine(webRoot, "uploads", folder);
+        
         if (!Directory.Exists(uploadsPath))
         {
             return Task.FromResult(Enumerable.Empty<string>());
         }
 
         var files = Directory.GetFiles(uploadsPath);
-        var request = _httpContextAccessor.HttpContext?.Request;
-        var baseUrl = $"{request?.Scheme}://{request?.Host}";
-
-        var urls = files.Select(f => $"{baseUrl}/uploads/{folder}/{Path.GetFileName(f)}");
+        
+        // Retornar rutas relativas
+        var urls = files.Select(f => $"/uploads/{folder}/{Path.GetFileName(f)}");
         return Task.FromResult(urls);
     }
 }
