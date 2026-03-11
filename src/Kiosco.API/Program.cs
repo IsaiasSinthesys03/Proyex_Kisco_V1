@@ -3,6 +3,20 @@ using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure Kestrel to allow large file uploads (e.g., 500MB)
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 524288000; // 500 MB
+});
+
+// Configure FormOptions to allow large file uploads
+builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+{
+    options.ValueLengthLimit = int.MaxValue;
+    options.MultipartBodyLengthLimit = 524288000; // 500 MB
+    options.MemoryBufferThreshold = int.MaxValue;
+});
+
 // Add services to the container.
 builder.Services.AddCors(options =>
 {
@@ -99,6 +113,8 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+app.UseCors("AllowAll");
+
 // Configure the HTTP request pipeline.
 app.UseMiddleware<Kiosco.API.Middleware.ExceptionMiddleware>();
 
@@ -107,8 +123,6 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference(); // Default route: /scalar/v1
 }
-
-app.UseCors("AllowAll");
 
 // app.UseHttpsRedirection();
 app.UseStaticFiles();

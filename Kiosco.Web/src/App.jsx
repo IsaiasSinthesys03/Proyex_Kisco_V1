@@ -747,11 +747,11 @@ function App() {
     const filesList = Array.from(e.target.files);
     if (!filesList || filesList.length === 0) return;
 
-    // Validación de tamaño máximo (50MB)
-    const MAX_SIZE = 50 * 1024 * 1024;
+    // Validación de tamaño máximo (500MB)
+    const MAX_SIZE = 500 * 1024 * 1024;
     const oversized = filesList.find(f => f.size > MAX_SIZE);
     if (oversized) {
-      setDialog({ show: true, title: 'Archivo muy pesado', message: `El archivo ${oversized.name} supera el límite de 50MB.`, type: 'alert', fields: [] });
+      setDialog({ show: true, title: 'Archivo muy pesado', message: `El archivo ${oversized.name} supera el límite de 500MB.`, type: 'alert', fields: [] });
       return;
     }
 

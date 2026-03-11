@@ -17,6 +17,7 @@ public class FilesController : ControllerBase
     }
 
     [HttpPost("upload")]
+    [DisableRequestSizeLimit]
     public async Task<IActionResult> Upload([FromForm] List<IFormFile> file, [FromQuery] string folder = "general")
     {
         if (file == null || !file.Any())

@@ -40,11 +40,7 @@ bld/
 # Visual Studio 2015/2017 cache/options directory
 .vs/
 # Static files and uploads
-!src/Kiosco.API/wwwroot/uploads/**
-!src/Kiosco.API/wwwroot/uploads/
-# Si prefieres ignorar archivos individuales y solo guardar la carpeta, usa .gitkeep
-# pero para la Opción A (sincronizar fotos), dejamos la regla de arriba activa.
-
+src/Kiosco.API/wwwroot/uploads/
 # Visual Studio 2017 auto generated files
 Generated\ Files/
 
